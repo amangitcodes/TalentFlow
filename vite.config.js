@@ -16,8 +16,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: "/", // ensures correct asset loading on Vercel
+  base: "/", // ensures correct asset and route handling on Vercel
   build: {
-    outDir: "dist",
+    outDir: "dist", // Vite’s default output folder
+    emptyOutDir: true, // clean old build files before new build
   },
 });
