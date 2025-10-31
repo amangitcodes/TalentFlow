@@ -8,7 +8,7 @@ No backend required — yet it feels like one!
 
 ##  Live Demo
 
-🔗 **Deployed App:** [Add your Vercel or Netlify link here]  
+🔗 **Deployed App:** https://talent-flow-kappa-three.vercel.app/
 💻 **GitHub Repository:** [https://github.com/amangitcodes/TalentFlow](https://github.com/amangitcodes/TalentFlow)
 
 ---
