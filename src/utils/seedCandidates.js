@@ -32,7 +32,7 @@ const shuffleArray = (arr) => {
 // ================================
 // MAIN SEED FUNCTION
 // ================================
-export async function seedCandidates(total = 500) {
+export async function seedCandidates(total = 1000) {
   const count = await db.candidates.count();
   if (count >= total) {
     console.info(`✅ ${count} candidates already exist — skipping seeding.`);
@@ -74,38 +74,45 @@ export async function seedCandidates(total = 500) {
     }
   }
 
-  // Shuffle & trim (guarantees exactly total)
   const finalCandidates = shuffleArray(candidates).slice(0, total);
 
-  // Insert in batches safely
-  const batchSize = 200;
+  const batchSize = 100; // smaller batch to reduce CPU spike
   let inserted = 0;
 
   for (let start = 0; start < finalCandidates.length; start += batchSize) {
     const batch = finalCandidates.slice(start, start + batchSize);
 
-    for (const candidate of batch) {
-      let added = false;
-      while (!added) {
-        try {
-          await addCandidate(candidate);
-          added = true;
-          inserted++;
-        } catch (err) {
-          if (err.message.includes("Simulated network error")) {
-            console.warn("⚠️ Retrying candidate due to simulated network issue...");
-          } else {
-            throw err;
+    // Insert each batch with a short async delay
+    await Promise.all(
+      batch.map(async (candidate) => {
+        let added = false;
+        while (!added) {
+          try {
+            await addCandidate(candidate);
+            added = true;
+            inserted++;
+          } catch (err) {
+            if (err.message.includes("Simulated network error")) {
+              console.warn("⚠️ Retrying candidate due to simulated network issue...");
+              await new Promise((r) => setTimeout(r, 50));
+            } else {
+              throw err;
+            }
           }
         }
-      }
-    }
+      })
+    );
+
     console.log(`✅ Batch ${start + 1}–${Math.min(start + batchSize, total)} complete.`);
+
+    // 💤 Let browser breathe for 100ms before next batch
+    await new Promise((r) => setTimeout(r, 100));
   }
 
   console.log(`🎯 Exactly ${inserted} candidates inserted successfully.`);
   globalThis.__SEEDING__ = false;
 }
+
 
 // ================================
 // RESET + RESEED
