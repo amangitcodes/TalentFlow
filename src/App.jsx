@@ -37,7 +37,7 @@ function App() {
         <main className="pt-20 px-2 sm:px-4">
           <Routes>
             {/* Default route → Dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/" element={<Navigate to="/" />} />
 
             {/* Dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
